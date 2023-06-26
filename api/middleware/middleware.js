@@ -1,35 +1,51 @@
-// api/middleware/middleware.js
+const User = require("../users/users-model");
 
 function logger(req, res, next) {
-  const date = new Date();
-  console.log(`
-    REQUEST METHOD: ${req.method}
-    REQUEST URL: ${req.originalUrl}
-    TIMESTAMP: ${date.toLocaleString()}
-  `);
-
+  // DO YOUR MAGIC
+  const timestamp = new Date().toLocaleString();
+  const method = req.method;
+  const url = req.originalUrl;
+  console.log(`[${timestamp}] ${method} ${url}`);
   next();
 }
 
-function validateUserId(req, res, next) {
-  // Check the database to see if there is a user with the specified id
-  // If the id is valid, store the user object as req.user and allow the request to continue
-  // If the id is not found, respond with status 404 and { message: "user not found" }
+async function validateUserId(req, res, next) {
+  try {
+    const user = await User.getById(req.params.id);
+    if (!user) {
+      res.status(404).json({
+        message: "no such user",
+      });
+    } else {
+      req.user = user;
+      next();
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: "problem finding user",
+    });
+  }
 }
 
 function validateUser(req, res, next) {
-  // Validate the body on a request to create or update a user
-  // If the request body lacks the required name field, respond with status 400 and { message: "missing required name field" }
+  // DO YOUR MAGIC
+  const { name } = req.body;
+  if (!name || !name.trim()) {
+    res.status(400).json({
+      message: "missing required name field",
+    });
+  } else {
+    req.name = name.trim();
+    next();
+  }
 }
 
 function validatePost(req, res, next) {
-  // Validate the body on a request to create a new post
-  // If the request body lacks the required text field, respond with status 400 and { message: "missing required text field" }
+  // DO YOUR MAGIC
+  console.log("validatePost middleware");
+  next();
 }
 
-module.exports = {
-  logger,
-  validateUserId,
-  validateUser,
-  validatePost,
-};
+// do not forget to expose these functions to other modules
+
+module.exports = { logger, validateUserId, validatePost, validateUser };
