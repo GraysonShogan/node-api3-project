@@ -1,7 +1,7 @@
 // api/server.js
 const express = require("express");
 const helmet = require("helmet");
-const postsRouter = require("./posts/posts-router");
+const postsRouter = require("./posts/posts-model");
 const usersRouter = require("./users/users-router");
 const {
   logger,
